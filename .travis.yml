@@ -12,8 +12,7 @@ cache: pip
 before_install:
     - pip install docutils
 script:
-    - echo $(nproc)
-    - make -j$(nproc)
+    - make -j
 
 deploy:
     provider: script
