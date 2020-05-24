@@ -12,7 +12,7 @@ cache: pip
 before_install:
     - pip install docutils
 script:
-    - make -j4
+    - make -j8
 
 deploy:
     provider: script
