@@ -23,6 +23,6 @@ jobs:
         run: make -j$(nproc)
 
       - name: Deploy
-        if: github.repository == 'hugovk/peps' and github.ref == 'refs/heads/lint-rsk-backticks2'
+        if: github.repository == 'hugovk/peps' && github.ref == 'refs/heads/lint-rsk-backticks2'
         run: |
           bash deploy.bash
