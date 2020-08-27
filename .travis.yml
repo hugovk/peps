@@ -15,6 +15,3 @@ deploy:
     provider: script
     script: bash deploy.bash
     skip_cleanup: true
-    on:
-        branch: master
-        repo: python/peps
