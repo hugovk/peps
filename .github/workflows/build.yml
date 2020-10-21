@@ -26,7 +26,7 @@ jobs:
         if: >
           (
             github.repository == 'hugovk/peps' &&
-            github.ref == 'refs/heads/master'
+            github.ref == 'refs/heads/TEMP-lint-rsk-backticks---deploy-from-fork'
           )
 
         run: |
