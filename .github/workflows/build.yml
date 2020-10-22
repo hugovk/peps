@@ -25,8 +25,8 @@ jobs:
       - name: Deploy
         if: >
           (
-            github.repository == 'python/peps' &&
-            github.ref == 'refs/heads/master'
+            github.repository == 'hugovk/peps' &&
+            github.ref == 'refs/heads/gha-deploy2'
           )
 
         run: |
