@@ -21,7 +21,7 @@ feature and outlines changes necessary to support the feature.
 This PEP summarizes discussions held in mailing list forums, and
 provides URLs for further information, where appropriate.  The CVS
 revision history of this file contains the definitive historical
-record.
+record...
 
 
 Background
