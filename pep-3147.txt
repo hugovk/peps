@@ -604,8 +604,6 @@ References
 
 .. [20] http://www.mail-archive.com/python-dev@python.org/msg45203.html
 
-.. [21] importlib: http://docs.python.org/3.1/library/importlib.html
-
 .. [22] https://code.launchpad.net/~barry/python/pep3147
 
 .. [23] https://code.launchpad.net/~barry/python/pep3147/+merge/22648
