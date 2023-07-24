@@ -30,6 +30,9 @@ jobs:
       - name: 🔧 Render PEPs
         run: make dirhtml JOBS=$(nproc) SPHINXOPTS="-n -w sphinx-warnings.txt"
 
+      - name: 🐈 cat sphinx-warnings.txt
+        run: cat sphinx-warnings.txt
+
       # To annotate PRs with Sphinx nitpicks (missing references)
       - name: 🗄️Get list of changed files
         if: (github.event_name == 'pull_request') && (matrix.python-version == '3.x')
