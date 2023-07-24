@@ -39,7 +39,7 @@ jobs:
         id: changed_files
         uses: Ana06/get-changed-files@v2.2.0
         with:
-          filter: "peps-*.*"
+          filter: "pep-*.*"
           format: csv
 
       - name: 🔎 Check warnings
