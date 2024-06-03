@@ -64,7 +64,8 @@ Python predates SemVer
 ----------------------
 
 `Semantic Versioning <https://semver.org/>`__ (SemVer)
-is a popular scheme which aims to communicate the intent of a release.
+is a popular scheme which `aims to communicate the intent
+<https://hynek.me/articles/semver-will-not-save-you/>`__ of a release.
 
    Given a version number MAJOR.MINOR.PATCH, increment the:
 
@@ -334,7 +335,7 @@ and through outreach to the community.
 
 This change targets the version following 3.14:
 instead of 3.15 it will be 3.26.
-This PEP was proposed in May 2024.
+This PEP was proposed in June 2024.
 Development for the 3.15/3.26 release will begin in May 2025,
 with the first alpha in October 2025 and initial release in October 2026.
 We can already update documentation during the 3.14 cycle.
@@ -535,11 +536,19 @@ Change during 3.14 cycle
 
 The Python 3.14 release must go ahead because: π.
 
+Footnotes
+=========
+
+The author `proposed calendar versioning
+<https://hugovk.github.io/python-calver/>`__
+at the `Python Language Summit 2024
+<https://us.pycon.org/2024/events/language-summit/>`__;
+this PEP is a result of discussions there and during PyCon US.
+
 Acknowledgements
 ================
 
-Thank you to Łukasz Langa and Alex Waygood for reviewing an early draft of this
-PEP.
+Thank you to Łukasz Langa and Alex Waygood for reviewing a draft of this PEP.
 
 Copyright
 =========
