@@ -16,7 +16,7 @@ This PEP proposes updating the versioning scheme for Python to include
 the calendar year.
 This aims to make the support lifecycle clear
 by making it easy to see when a version was first released,
-and easier to work out when it will reach end-of-life.
+and easier to work out when it will reach end of life (EOL).
 
 Starting with what would have been Python 3.15,
 the version is 3.YY.micro where YY is the year of initial release:
@@ -81,9 +81,11 @@ and the Python scheme was `added to source control in 1994
 <https://github.com/hugovk/cpython/commit/95f61a7ef067dbcabccc9b45ee885b0d55922c5f>`__
 for the 1.0 release.
 
-If Python adopted SemVer, we’d essentially get a new major bump every year when
+If Python adopted SemVer, that would imply a new major bump every year when
 we remove deprecations.
-Some projects have adopted another versioning scheme based on the calendar.
+
+Instead of SemVer, however,
+some projects have adopted another versioning scheme based on the calendar.
 
 Calendar versioning
 -------------------
@@ -263,7 +265,7 @@ Python versions are numbered 3.YY.micro where:
 * *micro* is the micro version number
   - it is incremented for each bugfix or security release.
 
-We'll keep major version 3. Python 3 is the brand, there will be no Python 4.
+We'll keep major version 3. Python 3 is the brand; there will be no Python 4.
 
 In the year 2100, the minor will be ``2100-2000 = 100``,
 therefore the version will be 3.100.0.
@@ -276,9 +278,9 @@ Backwards compatibility
 =======================
 
 This version change is the safest of the CalVer options considered
-(see `rejected ideas <PEP 9999 rejected_>`_) because we keep major version 3
+(see `rejected ideas <PEP 9999 rejected_>`_): we keep 3 as the major version,
 and the minor version is still two digits.
-The minor will eventually change to three digits, but this is predictable,
+The minor will eventually change to three digits but this is predictable,
 a long way off and can be planned for.
 
 We retain the ``python3`` executable.
@@ -368,7 +370,7 @@ Will we stick with `version 3 forever
 <https://discuss.python.org/t/python-3-13-alpha-1-contains-breaking-changes-whats-the-plan/37490/11>`__?
 
 Another option is to put the year in the major version and jump to 26.0.
-This means we could leapfrog all that 4.0 baggage.
+This could mean we could leapfrog all that 4.0 baggage.
 
 Platform compatibility tags
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -494,7 +496,7 @@ Building upon YY.0 we could also include the release month as the minor
 version, like Ubuntu and Black. This makes it clear *when* in the year it was
 released, and also *when* in the year it will reach end-of-life.
 
-However, YY.mm is rejected for the same reasons as YY.0.
+However, YY.mm is rejected for many of the same reasons as YY.0.
 
 3.YYYY
 ------
@@ -502,7 +504,7 @@ However, YY.mm is rejected for the same reasons as YY.0.
 For example, Python 3.2026 would be released in 2026.
 
 It's clearer that the minor version is a year when using a four digits, and
-avoids confusion with Ubuntu versions which use YY.mm, but rejected as
+avoids confusion with Ubuntu versions which use YY.mm. However, this is rejected as
 changing from two to four digits would break more code than 3.YY.
 
 Editions
