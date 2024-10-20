@@ -34,6 +34,11 @@ jobs:
         with:
           extra_args: --all-files --hook-stage manual codespell || true
 
+      - name: Check spelling (action)
+        uses: codespell-project/actions-codespell@v2
+        with:
+          only_warn: 1
+
   check-peps:
     name: Run check-peps
     runs-on: ubuntu-latest
