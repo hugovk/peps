@@ -20,16 +20,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-          cache: pip
-
       - name: Run pre-commit hooks
-        uses: pre-commit/action@v3.0.1
+        uses: hugovk/pre-commit-action-uv@v3.0.1
 
       - name: Check spelling
-        uses: pre-commit/action@v3.0.1
+        uses: hugovk/pre-commit-action-uv@v3.0.1
         with:
           extra_args: --all-files --hook-stage manual codespell || true
