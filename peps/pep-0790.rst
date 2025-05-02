@@ -5,7 +5,7 @@ Status: Active
 Type: Informational
 Topic: Release
 Created: 26-Apr-2025
-Python-Version: 3.15
+Python-Version: 3.26
 
 
 Abstract
