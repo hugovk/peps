@@ -32,7 +32,6 @@ jobs:
         uses: tox-dev/action-pre-commit-uv@v1
         continue-on-error: true
 
-      - run: cat /home/runner/.local/bin/uv
       - run: cat /home/runner/.cache/pre-commit/pre-commit.log
 
       - name: Check spelling
