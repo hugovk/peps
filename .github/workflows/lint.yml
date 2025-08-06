@@ -37,6 +37,9 @@ jobs:
           which uv
           uv --version
 
+      - run: |
+          python3 debug.py
+
       - name: Check spelling
         uses: tox-dev/action-pre-commit-uv@v1
         with:
