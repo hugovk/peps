@@ -496,7 +496,8 @@ dl.footnote > dd {
     font-weight: 500;
     color: var(--colour-text-strong);
 }
-#pep-version-select {
+#pep-version-select,
+#pep-type-select {
     padding: 0.4rem 0.6rem;
     border: 1px solid var(--colour-background-accent-strong);
     border-radius: 4px;
@@ -506,7 +507,8 @@ dl.footnote > dd {
     cursor: pointer;
     min-width: 150px;
 }
-#pep-version-select:focus {
+#pep-version-select:focus,
+#pep-type-select:focus {
     outline: none;
     border-color: var(--colour-links);
 }
