@@ -7,20 +7,23 @@
 
   const VERSION_STORAGE_KEY = "pep_version_filter";
   const TYPE_STORAGE_KEY = "pep_type_filter";
+  const TOPIC_STORAGE_KEY = "pep_topic_filter";
   const API_URL =
     document.currentScript?.dataset.apiUrl || "/api/peps.json";
   let pepVersionMap = {};
   let pepTypeMap = {};
+  let pepTopicMap = {};
   let allVersions = [];
   let allTypes = [];
+  let allTopics = [];
 
   /**
-   * Parse python_version string and extract individual versions
-   * Handles formats like "3.10", "2.4, 2.5, 2.6", "2.7, 3.0"
+   * Parse a comma-separated string into trimmed, non-empty values
+   * Handles formats like "3.10", "2.4, 2.5, 2.6", "governance, packaging"
    */
-  function parseVersions(versionStr) {
-    if (!versionStr) return [];
-    return versionStr
+  function parseList(value) {
+    if (!value) return [];
+    return value
       .split(",")
       .map((v) => v.trim())
       .filter((v) => v);
@@ -49,7 +52,14 @@
   }
 
   /**
-   * Fetch PEP data and build version and type maps
+   * Capitalize the first letter of a string
+   */
+  function capitalize(s) {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  }
+
+  /**
+   * Fetch PEP data and build version, type, and topic maps
    */
   async function loadPepData() {
     try {
@@ -59,9 +69,10 @@
 
       const versionSet = new Set();
       const typeSet = new Set();
+      const topicSet = new Set();
 
       for (const [pepNum, pep] of Object.entries(data)) {
-        const versions = parseVersions(pep.python_version);
+        const versions = parseList(pep.python_version);
         pepVersionMap[pepNum] = versions;
 
         // Collect unique major.minor versions
@@ -76,10 +87,17 @@
           pepTypeMap[pepNum] = pep.type;
           typeSet.add(pep.type);
         }
+
+        const topics = parseList(pep.topic);
+        pepTopicMap[pepNum] = topics;
+        for (const topic of topics) {
+          topicSet.add(topic);
+        }
       }
 
       allVersions = sortVersionsDescending([...versionSet]);
       allTypes = [...typeSet].sort();
+      allTopics = [...topicSet].sort();
       return true;
     } catch (error) {
       console.error("Error loading PEP data:", error);
@@ -115,13 +133,23 @@
   }
 
   /**
+   * Check if a PEP matches the selected topic filter
+   */
+  function pepMatchesTopic(pepNum, selectedTopic) {
+    if (!selectedTopic || selectedTopic === "all") return true;
+    const pepTopics = pepTopicMap[pepNum] || [];
+    return pepTopics.includes(selectedTopic);
+  }
+
+  /**
    * Apply the filters to all PEP tables
    */
-  function applyFilter(selectedVersion, selectedType) {
+  function applyFilter(selectedVersion, selectedType, selectedTopic) {
     const tables = document.querySelectorAll("table.pep-zero-table");
     const filtersActive =
       (selectedVersion && selectedVersion !== "all") ||
-      (selectedType && selectedType !== "all");
+      (selectedType && selectedType !== "all") ||
+      (selectedTopic && selectedTopic !== "all");
     let totalVisible = 0;
     let totalPeps = 0;
 
@@ -136,7 +164,8 @@
         totalPeps++;
         const matches =
           pepMatchesVersion(pepNum, selectedVersion) &&
-          pepMatchesType(pepNum, selectedType);
+          pepMatchesType(pepNum, selectedType) &&
+          pepMatchesTopic(pepNum, selectedTopic);
 
         if (matches) {
           row.style.display = "";
@@ -181,7 +210,7 @@
     const container = document.createElement("div");
     container.id = "pep-version-filter";
     container.innerHTML = `
-            <label for="pep-version-select">Filter by Python version:</label>
+            <label for="pep-version-select">Python:</label>
             <select id="pep-version-select">
                 <option value="all">All versions</option>
             </select>
@@ -189,11 +218,16 @@
             <select id="pep-type-select">
                 <option value="all">All types</option>
             </select>
+            <label for="pep-topic-select">Topic:</label>
+            <select id="pep-topic-select">
+                <option value="all">All topics</option>
+            </select>
             <span id="pep-filter-count" aria-live="polite"></span>
         `;
 
     const versionSelect = container.querySelector("#pep-version-select");
     const typeSelect = container.querySelector("#pep-type-select");
+    const topicSelect = container.querySelector("#pep-topic-select");
 
     // Add version options
     for (const version of allVersions) {
@@ -211,6 +245,14 @@
       typeSelect.appendChild(option);
     }
 
+    // Add topic options
+    for (const topic of allTopics) {
+      const option = document.createElement("option");
+      option.value = topic;
+      option.textContent = capitalize(topic);
+      topicSelect.appendChild(option);
+    }
+
     // Restore saved selections
     const savedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     if (savedVersion && (savedVersion === "all" || allVersions.includes(savedVersion))) {
@@ -220,15 +262,23 @@
     if (savedType && (savedType === "all" || allTypes.includes(savedType))) {
       typeSelect.value = savedType;
     }
+    const savedTopic = localStorage.getItem(TOPIC_STORAGE_KEY);
+    if (savedTopic && (savedTopic === "all" || allTopics.includes(savedTopic))) {
+      topicSelect.value = savedTopic;
+    }
 
     // Handle filter changes
     versionSelect.addEventListener("change", () => {
       localStorage.setItem(VERSION_STORAGE_KEY, versionSelect.value);
-      applyFilter(versionSelect.value, typeSelect.value);
+      applyFilter(versionSelect.value, typeSelect.value, topicSelect.value);
     });
     typeSelect.addEventListener("change", () => {
       localStorage.setItem(TYPE_STORAGE_KEY, typeSelect.value);
-      applyFilter(versionSelect.value, typeSelect.value);
+      applyFilter(versionSelect.value, typeSelect.value, topicSelect.value);
+    });
+    topicSelect.addEventListener("change", () => {
+      localStorage.setItem(TOPIC_STORAGE_KEY, topicSelect.value);
+      applyFilter(versionSelect.value, typeSelect.value, topicSelect.value);
     });
 
     return container;
@@ -262,7 +312,13 @@
     if (!isPepIndex) return;
 
     const loaded = await loadPepData();
-    if (!loaded || (allVersions.length === 0 && allTypes.length === 0)) return;
+    if (
+      !loaded ||
+      (allVersions.length === 0 &&
+        allTypes.length === 0 &&
+        allTopics.length === 0)
+    )
+      return;
 
     const filterUI = createFilterUI();
     const inserted = insertFilterUI(filterUI);
@@ -271,8 +327,13 @@
       // Apply initial filter
       const savedVersion = localStorage.getItem(VERSION_STORAGE_KEY) || "all";
       const savedType = localStorage.getItem(TYPE_STORAGE_KEY) || "all";
-      if (savedVersion !== "all" || savedType !== "all") {
-        applyFilter(savedVersion, savedType);
+      const savedTopic = localStorage.getItem(TOPIC_STORAGE_KEY) || "all";
+      if (
+        savedVersion !== "all" ||
+        savedType !== "all" ||
+        savedTopic !== "all"
+      ) {
+        applyFilter(savedVersion, savedType, savedTopic);
       }
     }
   }

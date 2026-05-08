@@ -497,7 +497,8 @@ dl.footnote > dd {
     color: var(--colour-text-strong);
 }
 #pep-version-select,
-#pep-type-select {
+#pep-type-select,
+#pep-topic-select {
     padding: 0.4rem 0.6rem;
     border: 1px solid var(--colour-background-accent-strong);
     border-radius: 4px;
@@ -508,7 +509,8 @@ dl.footnote > dd {
     min-width: 150px;
 }
 #pep-version-select:focus,
-#pep-type-select:focus {
+#pep-type-select:focus,
+#pep-topic-select:focus {
     outline: none;
     border-color: var(--colour-links);
 }
