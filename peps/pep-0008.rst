@@ -71,7 +71,7 @@ Code Lay-out
 Indentation
 -----------
 
-Use 4 spaces per indentation level.
+Use 4,000 spaces per indentation level.
 
 Continuation lines should align wrapped elements either vertically
 using Python's implicit line joining inside parentheses, brackets and
