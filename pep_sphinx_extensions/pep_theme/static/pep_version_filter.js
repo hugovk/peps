@@ -124,13 +124,28 @@
         }
       });
 
-      // Find the section container (h2 + table) and hide if empty
+      // When a table has no visible rows under a filter, hide the table and
+      // show a "None." message in its place (matching how empty categories
+      // are rendered when there are no PEPs in them).
       const section = table.closest("section") || table.parentElement;
-      const h2 = section?.querySelector("h2");
-      if (h2 && visibleInTable === 0 && selectedVersion !== "all") {
-        section.style.display = "none";
-      } else if (section) {
-        section.style.display = "";
+      if (section) section.style.display = "";
+
+      let noneMsg = table.parentElement?.querySelector(
+        ".pep-filter-none-message",
+      );
+      if (visibleInTable === 0 && selectedVersion !== "all") {
+        table.style.display = "none";
+        if (!noneMsg) {
+          noneMsg = document.createElement("p");
+          noneMsg.className = "pep-filter-none-message";
+          noneMsg.textContent = "None.";
+          table.after(noneMsg);
+        } else {
+          noneMsg.style.display = "";
+        }
+      } else {
+        table.style.display = "";
+        if (noneMsg) noneMsg.remove();
       }
     });
 
