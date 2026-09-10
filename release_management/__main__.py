@@ -7,6 +7,7 @@ commands = (
     CMD_UPDATE_PEPS := "update-peps",
     CMD_RELEASE_CYCLE := "release-cycle",
     CMD_CALENDAR := "calendar",
+    CMD_CLE := "cle",
 )
 parser = argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument("COMMAND", choices=commands)
@@ -39,4 +40,12 @@ if args.COMMAND == CMD_CALENDAR:
 
     calendar_path = ROOT_DIR / "release-schedule.ics"
     calendar_path.write_text(create_release_schedule_calendar(), encoding="utf-8")
+    raise SystemExit(0)
+
+if args.COMMAND == CMD_CLE:
+    from release_management import ROOT_DIR
+    from release_management.serialize import create_cle
+
+    cle_path = ROOT_DIR / "cle.json"
+    cle_path.write_text(create_cle(), encoding="utf-8")
     raise SystemExit(0)

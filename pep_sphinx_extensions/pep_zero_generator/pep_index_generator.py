@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING
 from pep_sphinx_extensions.pep_zero_generator import parser, subindices, writer
 from pep_sphinx_extensions.pep_zero_generator.constants import SUBINDICES_BY_TOPIC
 from release_management.serialize import (
+    create_cle,
     create_release_cycle,
     create_release_json,
     create_release_schedule_calendar,
@@ -119,3 +120,6 @@ def create_pep_zero(app: Sphinx, env: BuildEnvironment, docnames: list[str]) -> 
     app.outdir.joinpath("release-schedule.ics").write_text(
         release_ical, encoding="utf-8"
     )
+
+    cle = create_cle()
+    app.outdir.joinpath("api/cle.json").write_text(cle, encoding="utf-8")

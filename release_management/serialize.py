@@ -8,7 +8,7 @@ from release_management import load_python_releases
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from release_management import ReleaseInfo, VersionMetadata
+    from release_management import PythonReleases, ReleaseInfo, VersionMetadata
 
 # Seven years captures the full lifecycle from prereleases to end-of-life
 TODAY = dt.date.today()
@@ -63,6 +63,124 @@ def version_info(metadata: VersionMetadata, /) -> dict[str, str | int]:
         "end_of_life": end_of_life,
         "release_manager": metadata.release_manager,
     }
+
+
+CLE_SCHEMA = "https://tc54.org/schemas/cle/cle-1.0.0.schema.json"
+CLE_IDENTIFIER = "pkg:generic/python"
+
+CLE_STAGE_SUFFIXES = {
+    "alpha": "a",
+    "beta": "b",
+    "candidate": "rc",
+}
+
+
+def create_cle() -> str:
+    """Serialize the release history as an ECMA-428 CLE document.
+
+    See https://ecma-international.org/publications-and-standards/standards/ecma-428/
+    """
+    events = cle_events(load_python_releases())
+    # Newest events with the highest IDs come first, per ECMA-428
+    events = [
+        {"id": event_id, **event}
+        for event_id, event in zip(range(len(events), 0, -1), reversed(events))
+    ]
+    document = {
+        "$schema": CLE_SCHEMA,
+        "identifier": CLE_IDENTIFIER,
+        "updatedAt": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "definitions": {
+            "support": [
+                {
+                    "id": "bugfix",
+                    "description": "Bug fixes and security fixes are accepted, "
+                    "binary installers are provided",
+                    "url": "https://devguide.python.org/developer-workflow/development-cycle/",
+                },
+            ],
+        },
+        "events": events,
+    }
+    cle_json = json.dumps(document, indent=2, sort_keys=False, ensure_ascii=False)
+    return f"{cle_json}\n"
+
+
+def cle_events(python_releases: PythonReleases, /) -> list[dict[str, object]]:
+    """Return lifecycle events without IDs, ordered oldest first.
+
+    Only events that have happened are included: 'expected' releases and
+    future phase transitions are omitted, as published CLE events are
+    immutable and may only be retracted by a 'withdrawn' event.
+    """
+    keyed_events = []
+    for version, metadata in python_releases.metadata.items():
+        version_key = version_to_tuple(version)
+        for release in python_releases.releases[version]:
+            if release.state != "actual":
+                continue
+            keyed_events.append(
+                (
+                    (release.date, 0, version_key),
+                    {
+                        "type": "released",
+                        "effective": cle_timestamp(release.date),
+                        "published": cle_timestamp(release.date),
+                        "version": cle_version(release.stage),
+                    },
+                )
+            )
+        if metadata.status in {"security", "end-of-life"}:
+            keyed_events.append(
+                (
+                    (metadata.end_of_bugfix, 1, version_key),
+                    {
+                        "type": "endOfSupport",
+                        "effective": cle_timestamp(metadata.end_of_bugfix),
+                        "published": cle_timestamp(metadata.end_of_bugfix),
+                        "versions": [{"range": cle_version_range(version)}],
+                        "supportId": "bugfix",
+                    },
+                )
+            )
+        if metadata.status == "end-of-life":
+            keyed_events.append(
+                (
+                    (metadata.end_of_life, 2, version_key),
+                    {
+                        "type": "endOfLife",
+                        "effective": cle_timestamp(metadata.end_of_life),
+                        "published": cle_timestamp(metadata.end_of_life),
+                        "versions": [{"range": cle_version_range(version)}],
+                    },
+                )
+            )
+    keyed_events.sort(key=lambda keyed_event: keyed_event[0])
+    return [event for _key, event in keyed_events]
+
+
+def cle_timestamp(date: dt.date, /) -> str:
+    return f"{date.isoformat()}T00:00:00Z"
+
+
+def cle_version(stage: str, /) -> str:
+    """Convert a release stage to a version string.
+
+    For example, '3.15.0 candidate 2' becomes '3.15.0rc2'.
+    """
+    version, _, phase = stage.partition(" ")
+    if not phase or phase == "final":
+        return version
+    name, _, serial = phase.partition(" ")
+    if name not in CLE_STAGE_SUFFIXES or not serial.isdigit():
+        raise ValueError(f"unrecognised release stage: {stage!r}")
+    return f"{version}{CLE_STAGE_SUFFIXES[name]}{serial}"
+
+
+def cle_version_range(version: str, /) -> str:
+    """Return a vers range covering every release in a MAJOR.MINOR series."""
+    major, minor = version_to_tuple(version)
+    return f"vers:generic/>={version}|<{major}.{minor + 1}"
 
 
 def create_release_schedule_calendar() -> str:
